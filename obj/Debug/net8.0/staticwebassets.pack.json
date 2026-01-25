@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "/home/pezo/NetBeansProjects/turniri/wwwroot/css/site.css",
+      "PackagePath": "staticwebassets/css/site.css"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.Turniri.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.Turniri.props",
+      "PackagePath": "build\\Turniri.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Turniri.props",
+      "PackagePath": "buildMultiTargeting\\Turniri.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Turniri.props",
+      "PackagePath": "buildTransitive\\Turniri.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,7 @@
+Building...
+/home/pezo/NetBeansProjects/turniri/Views/Tournament/Index.cshtml(32,11): error CS0103: The name 'import' does not exist in the current context [/home/pezo/NetBeansProjects/turniri/Turniri.csproj]
+/home/pezo/NetBeansProjects/turniri/Views/Account/Login.cshtml(32,11): error CS0103: The name 'import' does not exist in the current context [/home/pezo/NetBeansProjects/turniri/Turniri.csproj]
+/home/pezo/NetBeansProjects/turniri/Views/Account/Register.cshtml(32,11): error CS0103: The name 'import' does not exist in the current context [/home/pezo/NetBeansProjects/turniri/Turniri.csproj]
+/home/pezo/NetBeansProjects/turniri/Views/Tournament/Create.cshtml(32,11): error CS0103: The name 'import' does not exist in the current context [/home/pezo/NetBeansProjects/turniri/Turniri.csproj]
+
+The build failed. Fix the build errors and run again.
