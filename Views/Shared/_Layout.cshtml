@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sportski turniri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        'dark-lighter': '#1e293b',
+                        'gray-custom': '#64748b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+        
+        html {
+            font-size: 16px;
+        }
+        
+        body {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        h1 {
+            font-size: 1.875rem !important; /* text-3xl */
+        }
+        
+        h2 {
+            font-size: 1.5rem !important; /* text-2xl */
+        }
+        
+        h3 {
+            font-size: 1.25rem !important; /* text-xl */
+        }
+        
+        p, span, a, button, input, label {
+            font-size: 1rem !important; /* text-base */
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Fix clock icon size */
+        svg.w-6.h-6 {
+            width: 1.5rem !important;
+            height: 1.5rem !important;
+            max-width: 1.5rem !important;
+            max-height: 1.5rem !important;
+        }
+        
+        svg.w-5.h-5 {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            max-width: 1.25rem !important;
+            max-height: 1.25rem !important;
+        }
+        
+        svg.w-4.h-4 {
+            width: 1rem !important;
+            height: 1rem !important;
+            max-width: 1rem !important;
+            max-height: 1rem !important;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white min-h-screen flex flex-col">
+    @RenderBody()
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

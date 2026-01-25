@@ -1,0 +1,225 @@
+@using Turniri.ViewModels
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model TournamentViewModel
+@{
+    ViewData["Title"] = "Objavi turnir";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sportski turniri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        'dark-lighter': '#1e293b',
+                        'gray-custom': '#64748b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+        
+        html { font-size: 16px; }
+        body { font-size: 16px; line-height: 1.5; }
+        h1 { font-size: 1.875rem !important; }
+        h2 { font-size: 1.5rem !important; }
+        h3 { font-size: 1.25rem !important; }
+        p, span, a, button, input, label { font-size: 1rem !important; }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        svg.w-5.h-5 {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            max-width: 1.25rem !important;
+            max-height: 1.25rem !important;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="hero-gradient border-b border-dark-lighter">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+            <a asp-action="Index" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="max-width: 20px; max-height: 20px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Sportski turniri</h1>
+            </a>
+            
+            <a asp-action="Index" class="text-gray-custom hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="max-width: 20px; max-height: 20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Form Section -->
+<section class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+        
+        <!-- Form Card -->
+        <div class="bg-dark-lighter border border-gray-custom/20 rounded-2xl p-8 shadow-2xl">
+            
+            <!-- Title -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">Objavi novi turnir</h2>
+            </div>
+
+            <!-- Validation Summary -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+                    <div asp-validation-summary="All" class="text-red-400 text-sm"></div>
+                </div>
+            }
+
+            <!-- Form -->
+            <form asp-action="Create" method="post" class="space-y-6">
+                
+                <!-- Sport Input -->
+                <div>
+                    <label asp-for="Sport" class="block text-sm font-semibold text-white mb-2">
+                        Sport *
+                    </label>
+                    <input 
+                        asp-for="Sport"
+                        type="text"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                        placeholder="npr. Nogomet, Tenis, Padel..."
+                    />
+                    <span asp-validation-for="Sport" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Naziv Input -->
+                <div>
+                    <label asp-for="Naziv" class="block text-sm font-semibold text-white mb-2">
+                        Naziv turnira *
+                    </label>
+                    <input 
+                        asp-for="Naziv"
+                        type="text"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                        placeholder="npr. Večernji mali nogomet"
+                    />
+                    <span asp-validation-for="Naziv" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Broj Igraca Input -->
+                <div>
+                    <label asp-for="BrojIgraca" class="block text-sm font-semibold text-white mb-2">
+                        Broj igrača *
+                    </label>
+                    <input 
+                        asp-for="BrojIgraca"
+                        type="number"
+                        min="1"
+                        max="100"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                        placeholder="npr. 10"
+                    />
+                    <span asp-validation-for="BrojIgraca" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Datum Input -->
+                <div>
+                    <label asp-for="Datum" class="block text-sm font-semibold text-white mb-2">
+                        Datum *
+                    </label>
+                    <input 
+                        asp-for="Datum"
+                        type="date"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                    />
+                    <span asp-validation-for="Datum" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Vrijeme Input -->
+                <div>
+                    <label asp-for="Vrijeme" class="block text-sm font-semibold text-white mb-2">
+                        Vrijeme *
+                    </label>
+                    <input 
+                        asp-for="Vrijeme"
+                        type="time"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                    />
+                    <span asp-validation-for="Vrijeme" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 btn-primary bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg">
+                        Objavi turnir
+                    </button>
+                    <a asp-action="Index" class="flex-1 text-center bg-dark-lighter border border-gray-custom/30 text-white font-bold py-3 rounded-lg hover:border-primary transition">
+                        Otkaži
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark-lighter border-t border-gray-custom/20 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center text-gray-custom text-sm">
+            <p>&copy; 2025 Sportski turniri. Sva prava pridržana.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>
+
