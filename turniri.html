@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sportski turniri</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#10b981',
+            secondary: '#059669',
+            accent: '#f59e0b',
+            dark: '#0f172a',
+            'dark-lighter': '#1e293b',
+            'gray-custom': '#64748b',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .turnir-card {
+      transition: all 0.3s ease;
+    }
+    
+    .turnir-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-gradient {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    .btn-primary {
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 50;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: #1e293b;
+      border: 1px solid rgba(100, 116, 139, 0.2);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { 
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: white;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #0f172a;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-group input::placeholder {
+      color: #64748b;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .modal-close:hover {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body class="bg-dark text-white">
+  
+  <!-- Header -->
+  <header class="hero-gradient border-b border-dark-lighter">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold text-white">Sportski turniri</h1>
+        </div>
+        
+        <button class="btn-primary bg-primary hover:bg-secondary text-dark font-semibold px-6 py-2.5 rounded-lg">
+          Prijava
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-gradient py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2">
+            Dostupni turniri
+          </h2>
+          <p class="text-gray-custom">Pronađi i prijavi se na turnir koji te zanima</p>
+        </div>
+        <!-- Tipka za dodavanje novog turnira -->
+        <button onclick="openModal()" class="btn-primary bg-accent hover:bg-yellow-500 text-dark font-bold px-6 py-3 rounded-lg whitespace-nowrap">
+          + Objavi turnir
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Turniri Grid -->
+  <section class="py-12 bg-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="turnirsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Turnir 1 -->
+        <div class="turnir-card bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 hover:border-primary">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-bold text-white mb-1">Večernji mali nogomet</h3>
+              <div class="flex items-center gap-2 text-gray-custom text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>Marko Horvat</span>
+              </div>
+            </div>
+            <!-- Prikazuje sport kao tag -->
+            <span class="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
+              Nogomet
+            </span>
+          </div>
+          
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="text-white font-medium">Petak, 24.01.2025.</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="text-white font-medium">18:00</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span class="text-white font-medium">6 / 10 igrača</span>
+            </div>
+          </div>
+          
+          <button class="w-full btn-primary bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg">
+            Prijavi se
+          </button>
+        </div>
+
+        <!-- Turnir 2 -->
+        <div class="turnir-card bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 hover:border-primary">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-bold text-white mb-1">Teniski turnir - dupli</h3>
+              <div class="flex items-center gap-2 text-gray-custom text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>Ana Novak</span>
+              </div>
+            </div>
+            <span class="bg-accent/20 text-accent px-3 py-1 rounded-full text-sm font-medium">
+              Tenis
+            </span>
+          </div>
+          
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="text-white font-medium">Subota, 25.01.2025.</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="text-white font-medium">09:00</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span class="text-white font-medium">4 / 4 igrača</span>
+            </div>
+          </div>
+          
+          <button class="w-full btn-primary bg-gray-600 text-white font-bold py-3 rounded-lg cursor-not-allowed" disabled>
+            Turnir je pun
+          </button>
+        </div>
+
+        <!-- Turnir 3 -->
+        <div class="turnir-card bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 hover:border-primary">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-bold text-white mb-1">Padel miješani turnir</h3>
+              <div class="flex items-center gap-2 text-gray-custom text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>Petar Petrović</span>
+              </div>
+            </div>
+            <span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-medium">
+              Padel
+            </span>
+          </div>
+          
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="text-white font-medium">Nedjelja, 26.01.2025.</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="text-white font-medium">16:00</span>
+            </div>
+            
+            <div class="flex items-center gap-3 text-gray-custom">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span class="text-white font-medium">8 / 8 igrača</span>
+            </div>
+          </div>
+          
+          <button class="w-full btn-primary bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg">
+            Prijavi se
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal za dodavanje novog turnira -->
+  <div id="addTournamentModal" class="modal">
+    <div class="modal-content relative">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      
+      <h2 class="text-2xl font-bold text-white mb-6">Objavi novi turnir</h2>
+      
+      <form id="tournamentForm" onsubmit="addTournament(event)">
+        
+        <!-- Slobodan upis za sport umjesto selecta -->
+        <div class="form-group">
+          <label for="sport">Sport *</label>
+          <input type="text" id="sport" placeholder="npr. Nogomet, Tenis, Padel..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="naziv">Naziv turnira *</label>
+          <input type="text" id="naziv" placeholder="npr. Večernji mali nogomet" required>
+        </div>
+
+        <div class="form-group">
+          <label for="brojIgraca">Broj igrača *</label>
+          <input type="number" id="brojIgraca" min="1" placeholder="npr. 10" required>
+        </div>
+
+        <div class="form-group">
+          <label for="datum">Datum *</label>
+          <input type="date" id="datum" required>
+        </div>
+
+        <div class="form-group">
+          <label for="vrijeme">Vrijeme *</label>
+          <input type="time" id="vrijeme" required>
+        </div>
+
+        <div class="flex gap-3">
+          <button type="submit" class="flex-1 btn-primary bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg">
+            Objavi turnir
+          </button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-dark-lighter border border-gray-custom/30 text-white font-bold py-3 rounded-lg hover:border-primary transition">
+            Otkaži
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <footer class="bg-dark text-white text-center py-4">
+    <p>&copy; 2025 SportTermin. Sva prava pridržana.</p>
+  </footer>
+
+  <script>
+    function openModal() {
+      document.getElementById('addTournamentModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('addTournamentModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+      document.getElementById('tournamentForm').reset();
+    }
+
+    // Zatvori modal pri pritisku na ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Zatvori modal pri kliku na pozadinu
+    document.getElementById('addTournamentModal').addEventListener('click', (e) => {
+      if (e.target.id === 'addTournamentModal') {
+        closeModal();
+      }
+    });
+
+    function addTournament(event) {
+      event.preventDefault();
+
+      const sport = document.getElementById('sport').value;
+      const naziv = document.getElementById('naziv').value;
+      const brojIgraca = document.getElementById('brojIgraca').value;
+      const datum = document.getElementById('datum').value;
+      const vrijeme = document.getElementById('vrijeme').value;
+
+      // Kreiraj novu karticu turnira
+      const newTurnir = document.createElement('div');
+      newTurnir.className = 'turnir-card bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 hover:border-primary';
+      newTurnir.innerHTML = `
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h3 class="text-xl font-bold text-white mb-1">${naziv}</h3>
+            <div class="flex items-center gap-2 text-gray-custom text-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span>Tvoje ime</span>
+            </div>
+          </div>
+          <span class="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-medium">
+            ${sport}
+          </span>
+        </div>
+        
+        <div class="space-y-3 mb-6">
+          <div class="flex items-center gap-3 text-gray-custom">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="text-white font-medium">${formatDate(datum)}</span>
+          </div>
+          
+          <div class="flex items-center gap-3 text-gray-custom">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-white font-medium">${vrijeme}</span>
+          </div>
+          
+          <div class="flex items-center gap-3 text-gray-custom">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span class="text-white font-medium">0 / ${brojIgraca} igrača</span>
+            </div>
+          </div>
+          
+          <button class="w-full btn-primary bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg">
+            Prijavi se
+          </button>
+      `;
+
+      document.getElementById('turnirsContainer').insertBefore(newTurnir, document.getElementById('turnirsContainer').firstChild);
+      closeModal();
+    }
+
+    // Pomoćna funkcija za formatiranje datuma
+    function formatDate(dateString) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('hr-HR', options) + '.';
+    }
+  </script>
+
+</body>
+</html>
