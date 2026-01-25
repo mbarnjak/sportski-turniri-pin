@@ -1,0 +1,224 @@
+@using Turniri.ViewModels
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Prijava";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sportski turniri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        'dark-lighter': '#1e293b',
+                        'gray-custom': '#64748b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+        
+        html { font-size: 16px; }
+        body { font-size: 16px; line-height: 1.5; }
+        h1 { font-size: 1.875rem !important; }
+        h2 { font-size: 1.5rem !important; }
+        h3 { font-size: 1.25rem !important; }
+        p, span, a, button, input, label { font-size: 1rem !important; }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        svg.w-5.h-5 {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+            max-width: 1.25rem !important;
+            max-height: 1.25rem !important;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="hero-gradient border-b border-dark-lighter">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+            <a asp-controller="Tournament" asp-action="Index" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="max-width: 20px; max-height: 20px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Sportski turniri</h1>
+            </a>
+            
+            <a asp-controller="Tournament" asp-action="Index" class="text-gray-custom hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="max-width: 20px; max-height: 20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Login Form Section -->
+<section class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+        
+        <!-- Login Card -->
+        <div class="bg-dark-lighter border border-gray-custom/20 rounded-2xl p-8 shadow-2xl">
+            
+            <!-- Title -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">Dobrodošli natrag</h2>
+                <p class="text-gray-custom">Prijavite se na svoj račun</p>
+            </div>
+
+            <!-- Validation Summary -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+                    <div asp-validation-summary="All" class="text-red-400 text-sm"></div>
+                </div>
+            }
+
+            <!-- Login Form -->
+            <form asp-action="Login" method="post" class="space-y-6">
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                
+                <!-- Email Input -->
+                <div>
+                    <label asp-for="Email" class="block text-sm font-semibold text-white mb-2">
+                        Email adresa
+                    </label>
+                    <input 
+                        asp-for="Email"
+                        type="email"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                        placeholder="vas.email@primjer.com"
+                    />
+                    <span asp-validation-for="Email" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                    <label asp-for="Password" class="block text-sm font-semibold text-white mb-2">
+                        Lozinka
+                    </label>
+                    <input 
+                        asp-for="Password"
+                        type="password"
+                        class="input-field w-full px-4 py-3 bg-dark border border-gray-custom/30 rounded-lg text-white placeholder-gray-custom focus:outline-none"
+                        placeholder="••••••••"
+                    />
+                    <span asp-validation-for="Password" class="text-red-400 text-sm"></span>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input 
+                            asp-for="RememberMe"
+                            type="checkbox"
+                            class="w-4 h-4 bg-dark border-gray-custom/30 rounded text-primary focus:ring-primary focus:ring-2"
+                        />
+                        <label asp-for="RememberMe" class="ml-2 text-sm text-gray-custom">
+                            Zapamti me
+                        </label>
+                    </div>
+                    <a href="#" class="text-sm text-primary hover:text-secondary transition-colors">
+                        Zaboravili ste lozinku?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button 
+                    type="submit"
+                    class="btn-primary w-full bg-primary hover:bg-secondary text-dark font-bold py-3 rounded-lg"
+                >
+                    Prijavi se
+                </button>
+
+            </form>
+
+            <!-- Divider -->
+            <div class="relative my-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-custom/20"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-dark-lighter text-gray-custom">ili</span>
+                </div>
+            </div>
+
+            <!-- Register Button -->
+            <a 
+                asp-controller="Account" asp-action="Register"
+                class="block w-full text-center border-2 border-primary text-primary hover:bg-primary hover:text-dark font-bold py-3 rounded-lg transition-all"
+            >
+                Registriraj se
+            </a>
+
+        </div>
+
+        <!-- Additional Info -->
+        <p class="text-center text-gray-custom text-sm mt-6">
+            Prijavom se slažete s našim 
+            <a href="#" class="text-primary hover:text-secondary">Uvjetima korištenja</a> i 
+            <a href="#" class="text-primary hover:text-secondary">Politikom privatnosti</a>
+        </p>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark-lighter border-t border-gray-custom/20 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center text-gray-custom text-sm">
+            <p>&copy; 2025 Sportski turniri. Sva prava pridržana.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>
