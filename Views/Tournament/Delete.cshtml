@@ -1,0 +1,134 @@
+﻿@model Turniri.ViewModels.TournamentViewModel
+
+@{
+    ViewData["Title"] = "Brisanje turnira";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sportski turniri</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#f59e0b',
+                        dark: '#0f172a',
+                        'dark-lighter': '#1e293b',
+                        'gray-custom': '#64748b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                transform: scale(1.03);
+                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+            }
+    </style>
+</head>
+
+<body class="bg-dark text-white min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="hero-gradient border-b border-dark-lighter">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="max-width: 20px; max-height: 20px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-white">Sportski turniri</h1>
+                </div>
+
+                <a asp-action="Index" class="text-gray-custom hover:text-white transition-colors">
+                    ← Natrag
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 sm:p-8">
+                <h2 class="text-2xl font-bold text-white mb-2">Brisanje turnira</h2>
+                <p class="text-gray-custom mb-6">
+                    Jesi siguran da želiš obrisati ovaj turnir? Ova radnja je nepovratna.
+                </p>
+
+                <div class="space-y-3 mb-8">
+                    <div class="flex items-center justify-between border-b border-gray-custom/20 pb-3">
+                        <span class="text-gray-custom">Naziv</span>
+                        <span class="text-white font-semibold">@Model.Naziv</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-gray-custom/20 pb-3">
+                        <span class="text-gray-custom">Sport</span>
+                        <span class="text-white font-semibold">@Model.Sport</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-gray-custom/20 pb-3">
+                        <span class="text-gray-custom">Datum</span>
+                        <span class="text-white font-semibold">@Model.Datum.ToString("dd.MM.yyyy")</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-gray-custom/20 pb-3">
+                        <span class="text-gray-custom">Vrijeme</span>
+                        <span class="text-white font-semibold">@Model.Vrijeme.ToString(@"hh\:mm")</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-gray-custom/20 pb-3">
+                        <span class="text-gray-custom">Organizator</span>
+                        <span class="text-white font-semibold">@Model.OrganizatorIme</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-custom">Prijavljenih</span>
+                        <span class="text-white font-semibold">@Model.BrojPrijavljenih</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <form asp-action="Delete" method="post" class="w-full sm:w-auto">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="w-full btn-primary bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-3 rounded-lg">
+                            Obriši
+                        </button>
+                    </form>
+
+                    <a asp-action="Index" class="w-full sm:w-auto text-center btn-primary bg-gray-600 hover:bg-gray-500 text-white font-bold px-6 py-3 rounded-lg">
+                        Odustani
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white text-center py-4">
+        <p>&copy; 2025 Sportski turniri. Sva prava pridržana.</p>
+    </footer>
+</body>
+</html>

@@ -100,6 +100,55 @@ namespace Turniri.Controllers
             return View(model);
         }
 
+        // ✅ GET: Tournament/Delete/5 (potvrda brisanja)
+        [Authorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var tournament = await _context.Tournaments
+                .Include(t => t.Organizator)
+                .Include(t => t.Registrations)
+                .FirstOrDefaultAsync(t => t.Id == id.Value);
+
+            if (tournament == null) return NotFound();
+
+            var vm = new TournamentViewModel
+            {
+                Id = tournament.Id,
+                Naziv = tournament.Naziv,
+                Sport = tournament.Sport,
+                BrojIgraca = tournament.BrojIgraca,
+                Datum = tournament.Datum,
+                Vrijeme = tournament.Vrijeme,
+                OrganizatorIme = tournament.Organizator?.UserName ?? "Nepoznato",
+                BrojPrijavljenih = tournament.Registrations?.Count ?? 0
+            };
+
+            return View(vm);
+        }
+
+        // ✅ POST: Tournament/Delete/5 (stvarno brisanje)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var tournament = await _context.Tournaments
+                .Include(t => t.Registrations)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tournament == null) return NotFound();
+
+            _context.Tournaments.Remove(tournament);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Tournament deleted: {TournamentId} by user {UserId}", id, _userManager.GetUserId(User));
+            TempData["Success"] = "Turnir je obrisan.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // POST: Tournament/Register/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -190,4 +239,3 @@ namespace Turniri.Controllers
         }
     }
 }
-
