@@ -24,14 +24,36 @@ namespace Turniri.Controllers
             _logger = logger;
         }
 
-        // GET: Tournament
-        public async Task<IActionResult> Index()
+        // =========================
+        // INDEX (SEARCH + SORT)
+        // =========================
+        public async Task<IActionResult> Index(string? q, string? sort)
         {
-            var tournaments = await _context.Tournaments
+            var query = _context.Tournaments
                 .Include(t => t.Organizator)
                 .Include(t => t.Registrations)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
+                .AsQueryable();
+
+            // SEARCH
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                query = query.Where(t =>
+                    t.Naziv.Contains(term) ||
+                    t.Sport.Contains(term)
+                );
+            }
+
+            // SORT
+            query = sort switch
+            {
+                "date_asc" => query.OrderBy(t => t.Datum).ThenBy(t => t.Vrijeme),
+                "date_desc" => query.OrderByDescending(t => t.Datum).ThenByDescending(t => t.Vrijeme),
+                "players_desc" => query.OrderByDescending(t => t.Registrations.Count),
+                _ => query.OrderByDescending(t => t.CreatedAt)
+            };
+
+            var tournaments = await query.ToListAsync();
 
             var userId = _userManager.GetUserId(User);
             var userRegistrations = userId != null
@@ -55,60 +77,60 @@ namespace Turniri.Controllers
                 JePrijavljen = userRegistrations.Contains(t.Id)
             }).ToList();
 
+            ViewBag.Q = q ?? "";
+            ViewBag.Sort = sort ?? "";
+
             return View(viewModels);
         }
 
-        // GET: Tournament/Create
+        // =========================
+        // CREATE
+        // =========================
         [Authorize]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Tournament/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Create(TournamentViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var tournament = new Tournament
             {
-                var userId = _userManager.GetUserId(User);
-                if (userId == null)
-                {
-                    return RedirectToAction("Login", "Account");
-                }
+                Naziv = model.Naziv,
+                Sport = model.Sport,
+                BrojIgraca = model.BrojIgraca,
+                Datum = model.Datum,
+                Vrijeme = model.Vrijeme,
+                OrganizatorId = userId,
+                CreatedAt = DateTime.Now
+            };
 
-                var tournament = new Tournament
-                {
-                    Naziv = model.Naziv,
-                    Sport = model.Sport,
-                    BrojIgraca = model.BrojIgraca,
-                    Datum = model.Datum,
-                    Vrijeme = model.Vrijeme,
-                    OrganizatorId = userId,
-                    CreatedAt = DateTime.Now
-                };
+            _context.Tournaments.Add(tournament);
+            await _context.SaveChangesAsync();
 
-                _context.Add(tournament);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Tournament created: {TournamentId}", tournament.Id);
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(model);
+            TempData["Success"] = "Turnir je kreiran.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // ✅ GET: Tournament/Edit/5
+        // =========================
+        // EDIT
+        // =========================
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var tournament = await _context.Tournaments
-                .FirstOrDefaultAsync(t => t.Id == id.Value);
-
+            var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null) return NotFound();
 
             var vm = new TournamentViewModel
@@ -124,7 +146,6 @@ namespace Turniri.Controllers
             return View(vm);
         }
 
-        // ✅ POST: Tournament/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -135,9 +156,7 @@ namespace Turniri.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var tournament = await _context.Tournaments
-                .FirstOrDefaultAsync(t => t.Id == id);
-
+            var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null) return NotFound();
 
             tournament.Naziv = model.Naziv;
@@ -152,16 +171,17 @@ namespace Turniri.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ GET: Tournament/Delete/5 (potvrda brisanja)
+        // =========================
+        // DELETE
+        // =========================
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
             var tournament = await _context.Tournaments
-                .Include(t => t.Organizator)
                 .Include(t => t.Registrations)
-                .FirstOrDefaultAsync(t => t.Id == id.Value);
+                .FirstOrDefaultAsync(t => t.Id == id);
 
             if (tournament == null) return NotFound();
 
@@ -173,14 +193,12 @@ namespace Turniri.Controllers
                 BrojIgraca = tournament.BrojIgraca,
                 Datum = tournament.Datum,
                 Vrijeme = tournament.Vrijeme,
-                OrganizatorIme = tournament.Organizator?.UserName ?? "Nepoznato",
-                BrojPrijavljenih = tournament.Registrations?.Count ?? 0
+                BrojPrijavljenih = tournament.Registrations.Count
             };
 
             return View(vm);
         }
 
-        // ✅ POST: Tournament/Delete/5 (stvarno brisanje)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -195,13 +213,13 @@ namespace Turniri.Controllers
             _context.Tournaments.Remove(tournament);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Tournament deleted: {TournamentId} by user {UserId}", id, _userManager.GetUserId(User));
             TempData["Success"] = "Turnir je obrisan.";
-
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Tournament/Register/{id}
+        // =========================
+        // REGISTER / UNREGISTER
+        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -209,27 +227,14 @@ namespace Turniri.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var tournament = await _context.Tournaments
                 .Include(t => t.Registrations)
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (tournament == null)
-            {
                 return NotFound();
-            }
-
-            var existingRegistration = await _context.TournamentRegistrations
-                .FirstOrDefaultAsync(r => r.TournamentId == id && r.UserId == userId);
-
-            if (existingRegistration != null)
-            {
-                TempData["Error"] = "Već ste prijavljeni na ovaj turnir.";
-                return RedirectToAction(nameof(Index));
-            }
 
             if (tournament.JePun)
             {
@@ -237,28 +242,28 @@ namespace Turniri.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            if (tournament.OrganizatorId == userId)
+            var exists = await _context.TournamentRegistrations
+                .AnyAsync(r => r.TournamentId == id && r.UserId == userId);
+
+            if (exists)
             {
-                TempData["Error"] = "Ne možete se prijaviti na vlastiti turnir.";
+                TempData["Error"] = "Već ste prijavljeni.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var registration = new TournamentRegistration
+            _context.TournamentRegistrations.Add(new TournamentRegistration
             {
                 TournamentId = id,
                 UserId = userId,
                 DatumPrijave = DateTime.Now
-            };
+            });
 
-            _context.Add(registration);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("User {UserId} registered for tournament {TournamentId}", userId, id);
 
-            TempData["Success"] = "Uspješno ste se prijavili na turnir!";
+            TempData["Success"] = "Uspješno ste se prijavili.";
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Tournament/Unregister/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -266,24 +271,21 @@ namespace Turniri.Controllers
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var registration = await _context.TournamentRegistrations
                 .FirstOrDefaultAsync(r => r.TournamentId == id && r.UserId == userId);
 
             if (registration == null)
             {
-                TempData["Error"] = "Niste prijavljeni na ovaj turnir.";
+                TempData["Error"] = "Niste prijavljeni.";
                 return RedirectToAction(nameof(Index));
             }
 
             _context.TournamentRegistrations.Remove(registration);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("User {UserId} unregistered from tournament {TournamentId}", userId, id);
 
-            TempData["Success"] = "Uspješno ste se odjavili s turnira.";
+            TempData["Success"] = "Odjava uspješna.";
             return RedirectToAction(nameof(Index));
         }
     }
