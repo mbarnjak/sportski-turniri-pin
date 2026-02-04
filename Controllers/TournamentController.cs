@@ -25,10 +25,13 @@ namespace Turniri.Controllers
         }
 
         // =========================
-        // INDEX (SEARCH + SORT)
+        // INDEX (SEARCH + SORT + PAGINATION)
         // =========================
-        public async Task<IActionResult> Index(string? q, string? sort)
+        public async Task<IActionResult> Index(string? q, string? sort, int page = 1)
         {
+            const int pageSize = 4;
+            if (page < 1) page = 1;
+
             var query = _context.Tournaments
                 .Include(t => t.Organizator)
                 .Include(t => t.Registrations)
@@ -53,7 +56,16 @@ namespace Turniri.Controllers
                 _ => query.OrderByDescending(t => t.CreatedAt)
             };
 
-            var tournaments = await query.ToListAsync();
+            // PAGINATION metadata
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            var tournaments = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var userId = _userManager.GetUserId(User);
             var userRegistrations = userId != null
@@ -79,6 +91,10 @@ namespace Turniri.Controllers
 
             ViewBag.Q = q ?? "";
             ViewBag.Sort = sort ?? "";
+            ViewBag.Page = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.PageSize = pageSize;
 
             return View(viewModels);
         }

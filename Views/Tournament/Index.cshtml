@@ -7,6 +7,11 @@
 
     var currentQ = (ViewBag.Q as string) ?? "";
     var currentSort = (ViewBag.Sort as string) ?? "";
+
+    var page = (int)(ViewBag.Page ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    var pageSize = (int)(ViewBag.PageSize ?? 4);
 }
 <!DOCTYPE html>
 <html lang="hr">
@@ -95,7 +100,6 @@
     </style>
 </head>
 <body class="bg-dark text-white min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="hero-gradient border-b border-dark-lighter">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex items-center justify-between">
@@ -129,7 +133,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero-gradient py-12 sm:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -149,11 +152,11 @@
         </div>
     </section>
 
-    <!-- Search + Sort -->
     <section class="bg-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
             <div class="bg-dark-lighter border border-gray-custom/20 rounded-xl p-4">
                 <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                    <input type="hidden" name="page" value="1" />
 
                     <div class="flex-1">
                         <input name="q"
@@ -181,13 +184,11 @@
                             Reset
                         </a>
                     </div>
-
                 </form>
             </div>
         </div>
     </section>
 
-    <!-- Messages -->
     @if (TempData["Success"] != null)
     {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
@@ -206,16 +207,23 @@
         </div>
     }
 
-    <!-- Turniri Grid -->
     <section class="py-12 bg-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Results count -->
             <div class="mb-6 text-gray-custom text-sm">
-                Prikazano <span class="text-white font-semibold">@Model.Count</span> turnira
+                Prikazano
+                <span class="text-white font-semibold">
+                    @((totalCount == 0) ? 0 : ((page - 1) * pageSize + 1))
+                </span>
+                –
+                <span class="text-white font-semibold">
+                    @(Math.Min(page * pageSize, totalCount))
+                </span>
+                od
+                <span class="text-white font-semibold">@totalCount</span>
+                turnira
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
                 @foreach (var turnir in Model)
                 {
                     <div class="turnir-card bg-dark-lighter border border-gray-custom/20 rounded-xl p-6 hover:border-primary">
@@ -317,8 +325,66 @@
                         }
                     </div>
                 }
-
             </div>
+
+            @if (totalPages > 1)
+            {
+                <div class="mt-10 flex items-center justify-center gap-2">
+                    @if (page > 1)
+                    {
+                        <a asp-action="Index"
+                           asp-route-q="@currentQ"
+                           asp-route-sort="@currentSort"
+                           asp-route-page="@(page - 1)"
+                           class="bg-dark-lighter border border-gray-custom/30 text-white font-semibold px-4 py-2 rounded-lg hover:border-primary transition">
+                            Prethodna
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="bg-dark-lighter border border-gray-custom/10 text-gray-custom font-semibold px-4 py-2 rounded-lg cursor-not-allowed">
+                            Prethodna
+                        </span>
+                    }
+
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        if (p == page)
+                        {
+                            <span class="bg-primary/20 border border-primary text-primary font-bold px-4 py-2 rounded-lg">
+                                @p
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="Index"
+                               asp-route-q="@currentQ"
+                               asp-route-sort="@currentSort"
+                               asp-route-page="@p"
+                               class="bg-dark-lighter border border-gray-custom/30 text-white font-semibold px-4 py-2 rounded-lg hover:border-primary transition">
+                                @p
+                            </a>
+                        }
+                    }
+
+                    @if (page < totalPages)
+                    {
+                        <a asp-action="Index"
+                           asp-route-q="@currentQ"
+                           asp-route-sort="@currentSort"
+                           asp-route-page="@(page + 1)"
+                           class="bg-dark-lighter border border-gray-custom/30 text-white font-semibold px-4 py-2 rounded-lg hover:border-primary transition">
+                            Sljedeća
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="bg-dark-lighter border border-gray-custom/10 text-gray-custom font-semibold px-4 py-2 rounded-lg cursor-not-allowed">
+                            Sljedeća
+                        </span>
+                    }
+                </div>
+            }
         </div>
     </section>
 
